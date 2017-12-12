@@ -27,18 +27,17 @@ include $(KBE_ROOT)/kbe/src/build/common.mak
 
 KBELIBDIR = $(KBE_ROOT)/kbe/src/libs
 KBE_PYTHONLIB = $(KBELIBDIR)/lib$(PYTHONLIB).a
-
 # === Variables set by makesetup ===
 
-MODOBJS=          Modules/_threadmodule.o  Modules/signalmodule.o  Modules/posixmodule.o  Modules/errnomodule.o  Modules/pwdmodule.o  Modules/_sre.o  Modules/_codecsmodule.o  Modules/_weakref.o  Modules/_functoolsmodule.o  Modules/_operator.o  Modules/_collectionsmodule.o  Modules/itertoolsmodule.o  Modules/atexitmodule.o  Modules/_stat.o  Modules/_localemodule.o  Modules/_iomodule.o Modules/iobase.o Modules/fileio.o Modules/bytesio.o Modules/bufferedio.o Modules/textio.o Modules/stringio.o  Modules/zipimport.o  Modules/faulthandler.o  Modules/_tracemalloc.o Modules/hashtable.o  Modules/symtablemodule.o  Modules/xxsubtype.o
+MODOBJS=          Modules/_threadmodule.o  Modules/signalmodule.o  Modules/posixmodule.o  Modules/errnomodule.o  Modules/pwdmodule.o  Modules/_sre.o  Modules/_codecsmodule.o  Modules/_weakref.o  Modules/_functoolsmodule.o  Modules/_operator.o  Modules/_collectionsmodule.o  Modules/itertoolsmodule.o  Modules/atexitmodule.o  Modules/_stat.o  Modules/_localemodule.o  Modules/_iomodule.o Modules/iobase.o Modules/fileio.o Modules/bytesio.o Modules/bufferedio.o Modules/textio.o Modules/stringio.o  Modules/zipimport.o  Modules/faulthandler.o  Modules/_tracemalloc.o Modules/hashtable.o  Modules/symtablemodule.o  Modules/_ssl.o  Modules/md5module.o  Modules/sha1module.o  Modules/sha256module.o  Modules/sha512module.o  Modules/xxsubtype.o
 MODLIBS=        $(LOCALMODLIBS) $(BASEMODLIBS)
 
 # === Variables set by configure
 VERSION=	3.4
 srcdir=		.
 
-abs_srcdir=	.
-abs_builddir=	.
+abs_srcdir=	/home/seraphim/kbengine/kbe/src/lib/python
+abs_builddir=	/home/seraphim/kbengine/kbe/src/lib/python
 
 
 CC=		gcc -pthread
@@ -78,7 +77,7 @@ MAKESETUP=      $(srcdir)/Modules/makesetup
 
 # Compiler options
 OPT=		-DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes
-BASECFLAGS=	
+BASECFLAGS=	 -Wno-unused-result
 BASECPPFLAGS=	
 CONFIGURE_CFLAGS=	
 # CFLAGS_NODIST is used for building the interpreter and stdlib C extensions.
@@ -113,7 +112,7 @@ PY_CORE_CFLAGS=	$(PY_CFLAGS) $(PY_CFLAGS_NODIST) $(PY_CPPFLAGS) $(CFLAGSFORSHARE
 MACHDEP=	linux
 
 # Multiarch directory (may be empty)
-MULTIARCH=	
+MULTIARCH=	x86_64-linux-gnu
 
 # Install prefix for architecture-independent files
 prefix=		/usr/local
@@ -247,8 +246,9 @@ COVERAGE_REPORT_OPTIONS=--no-branch-coverage --title "CPython lcov report"
 
 # === Definitions added by makesetup ===
 
-LOCALMODLIBS=                     
+LOCALMODLIBS=                      -L$(KBE_ROOT)/kbe/src/libs -lssl -lcrypto     
 BASEMODLIBS=
+SSL=$(KBE_ROOT)/kbe/src/lib/dependencies/openssl
 PYTHONPATH=$(COREPYTHONPATH)
 COREPYTHONPATH=$(DESTPATH)$(SITEPATH)$(TESTPATH)$(MACHDEPPATH)$(EXTRAMACHDEPPATH)
 EXTRAMACHDEPPATH=
@@ -360,7 +360,7 @@ AST_ASDL=	$(srcdir)/Parser/Python.asdl
 
 ASDLGEN_FILES=	$(srcdir)/Parser/asdl.py $(srcdir)/Parser/asdl_c.py
 # XXX Note that a build now requires Python exist before the build starts
-ASDLGEN=	python3.4 $(srcdir)/Parser/asdl_c.py
+ASDLGEN=	python3 $(srcdir)/Parser/asdl_c.py
 
 ##########################################################################
 # Python
@@ -1700,5 +1700,15 @@ Modules/hashtable.o: $(srcdir)/Modules/hashtable.c; $(CC) $(PY_CORE_CFLAGS)  -c 
 Modules/_tracemalloc$(EXT_SUFFIX):  Modules/_tracemalloc.o Modules/hashtable.o; $(BLDSHARED)  Modules/_tracemalloc.o Modules/hashtable.o   -o Modules/_tracemalloc$(EXT_SUFFIX)
 Modules/symtablemodule.o: $(srcdir)/Modules/symtablemodule.c; $(CC) $(PY_CORE_CFLAGS)  -c $(srcdir)/Modules/symtablemodule.c -o Modules/symtablemodule.o
 Modules/_symtable$(EXT_SUFFIX):  Modules/symtablemodule.o; $(BLDSHARED)  Modules/symtablemodule.o   -o Modules/_symtable$(EXT_SUFFIX)
+Modules/_ssl.o: $(srcdir)/Modules/_ssl.c; $(CC) $(PY_CORE_CFLAGS)  -DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl -c $(srcdir)/Modules/_ssl.c -o Modules/_ssl.o
+Modules/_ssl$(EXT_SUFFIX):  Modules/_ssl.o; $(BLDSHARED)  Modules/_ssl.o  -L$(KBE_ROOT)/kbe/src/libs -lssl -lcrypto  -o Modules/_ssl$(EXT_SUFFIX)
+Modules/md5module.o: $(srcdir)/Modules/md5module.c; $(CC) $(PY_CORE_CFLAGS)  -c $(srcdir)/Modules/md5module.c -o Modules/md5module.o
+Modules/_md5$(EXT_SUFFIX):  Modules/md5module.o; $(BLDSHARED)  Modules/md5module.o   -o Modules/_md5$(EXT_SUFFIX)
+Modules/sha1module.o: $(srcdir)/Modules/sha1module.c; $(CC) $(PY_CORE_CFLAGS)  -c $(srcdir)/Modules/sha1module.c -o Modules/sha1module.o
+Modules/_sha1$(EXT_SUFFIX):  Modules/sha1module.o; $(BLDSHARED)  Modules/sha1module.o   -o Modules/_sha1$(EXT_SUFFIX)
+Modules/sha256module.o: $(srcdir)/Modules/sha256module.c; $(CC) $(PY_CORE_CFLAGS)  -c $(srcdir)/Modules/sha256module.c -o Modules/sha256module.o
+Modules/_sha256$(EXT_SUFFIX):  Modules/sha256module.o; $(BLDSHARED)  Modules/sha256module.o   -o Modules/_sha256$(EXT_SUFFIX)
+Modules/sha512module.o: $(srcdir)/Modules/sha512module.c; $(CC) $(PY_CORE_CFLAGS)  -c $(srcdir)/Modules/sha512module.c -o Modules/sha512module.o
+Modules/_sha512$(EXT_SUFFIX):  Modules/sha512module.o; $(BLDSHARED)  Modules/sha512module.o   -o Modules/_sha512$(EXT_SUFFIX)
 Modules/xxsubtype.o: $(srcdir)/Modules/xxsubtype.c; $(CC) $(PY_CORE_CFLAGS)  -c $(srcdir)/Modules/xxsubtype.c -o Modules/xxsubtype.o
 Modules/xxsubtype$(EXT_SUFFIX):  Modules/xxsubtype.o; $(BLDSHARED)  Modules/xxsubtype.o   -o Modules/xxsubtype$(EXT_SUFFIX)
